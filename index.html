@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#dc3545">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Kansai Guide">
+    <title>Kansai Travel Guide</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛩️</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛩️</text></svg>">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #f8f9fa;
+            --card-bg: #1e1e1e;
+            --accent-color: #dc3545;
+            --secondary-color: #6c757d;
+        }
+        
+        .light-mode {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --accent-color: #dc3545;
+            --secondary-color: #6c757d;
+        }
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+        
+        header {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .app-title {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        .app-subtitle {
+            margin: 0.5rem 0 0;
+            font-size: 1rem;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 0.5rem;
+            right: 0;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        main {
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .card-content {
+            padding: 1rem;
+        }
+        
+        .card h3 {
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+        
+        .location {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-page {
+            display: none;
+            padding: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            height: calc(100% - 2rem);
+        }
+        
+        .detail-page img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .detail-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .back-button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .detail-language-toggle {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .official-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .official-link:hover {
+            opacity: 0.9;
+        }
+        
+        .railway-map {
+            margin: 2rem auto;
+            max-width: 100%;
+            text-align: center;
+            display: none;
+        }
+        
+        .railway-map img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        
+        .railway-map h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+        
+        .map-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .map-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+        }
+        
+        .map-modal-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        
+        footer {
+            background-color: var(--card-bg);
+            padding: 1rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                position: static;
+                justify-content: center;
+                margin: 0.5rem 0 0;
+            }
+            
+            .app-title {
+                font-size: 1.5rem;
+            }
+            
+            .app-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .detail-controls {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1 class="app-title" id="app-title">Kansai Travel Guide</h1>
+            <p class="app-subtitle" id="app-subtitle">Kyoto Osaka Nara Himeji Kobe</p>
+            <div class="controls">
+                <button id="theme-toggle">🌙 Dark Mode</button>
+                <button id="language-toggle">🇬🇧 English</button>
+            </div>
+        </div>
+    </header>
+    
+    <main id="main-content">
+        <div id="home-page">
+            <h2 id="featured-title">Featured Destinations</h2>
+            <div class="grid" id="destinations-grid">
+                <!-- Cards will be inserted here by JavaScript -->
+            </div>
+            
+            <!-- English Railway Map -->
+            <div class="railway-map" id="railway-map-en">
+                <h3>Kansai Railway Network Map</h3>
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIKUC76RZB1jQNhUTgqMurX_L5H-su_URPFQVT7pJgqIcwAHZlbuC_2uU&s=10" 
+                     alt="Kansai Railway Map">
+            </div>
+            
+            <!-- Japanese Railway Map -->
+            <div class="railway-map" id="railway-map-ja">
+                <h3>関西鉄道路線図</h3>
+                <img src="https://dsstation.sakura.ne.jp/report/osaka/2024map/osakamap_2024_jp_LL.png" 
+                     alt="関西鉄道路線図">
+            </div>
+        </div>
+        
+        <div id="detail-page" class="detail-page">
+            <div class="detail-controls">
+                <button class="back-button" id="back-button">← Back</button>
+                <button class="detail-language-toggle" id="detail-language-toggle">🇯🇵 日本語</button>
+            </div>
+            <img id="detail-image" src="" alt="">
+            <h2 id="detail-title"></h2>
+            <div class="location" id="detail-location"></div>
+            <div id="detail-description"></div>
+            <h3 id="access-title">Access</h3>
+            <div id="detail-access"></div>
+            <h3 id="tips-title">Tips</h3>
+            <div id="detail-tips"></div>
+            <a id="official-link" class="official-link" href="#" target="_blank" rel="noopener">Visit Official Site</a>
+        </div>
+        
+        <!-- Map Modal -->
+        <div class="map-modal" id="map-modal">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <div class="map-modal-content">
+                <img id="modal-map-image" src="" alt="">
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <a href="mailto:mementomorikatsu@gmail.com" id="contact-link">Contact me<br>mementomorikatsu@gmail.com</a>
+    </footer>
+
+    <script>
+        // App data with official URLs
+        const destinations = {
+            en: [
+                {
+                    id: 'kiyomizudera',
+                    title: 'Kiyomizu-dera',
+                    location: 'Kyoto',
+                    description: 'Iconic temple with a wooden stage jutting out from the hillside, offering spectacular views of Kyoto. Particularly beautiful during cherry blossom and autumn foliage seasons.',
+                    access: 'From Kyoto Station: Take bus #100 or #206 to Kiyomizu-michi stop (10-15 min), then 10 min walk uphill.',
+                    tips: 'Visit early to avoid crowds. Try the Otowa Waterfall for its three streams each granting a different wish.',
+                    image: 'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.kiyomizudera.or.jp/en/'
+                },
+                {
+                    id: 'fushimiinari',
+                    title: 'Fushimi Inari Taisha',
+                    location: 'Kyoto',
+                    description: 'Famous for its thousands of vermilion torii gates that lead up the mountain. Dedicated to Inari, the Shinto god of rice and prosperity.',
+                    access: 'From Kyoto Station: Take JR Nara Line to Inari Station (5 min). The shrine is right outside the station.',
+                    tips: 'Hike to the top for fewer crowds and great views. Visit at night for a mystical experience with illuminated gates.',
+                    image: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://inari.jp/en/'
+                },
+                {
+                    id: 'kinkakuji',
+                    title: 'Kinkaku-ji',
+                    location: 'Kyoto',
+                    description: 'The Golden Pavilion, covered in gold leaf, reflects beautifully on the pond. A Zen temple that represents the extravagant Kitayama culture.',
+                    access: 'From Kyoto Station: Take bus #101 or #205 to Kinkakuji-michi stop (40 min).',
+                    tips: 'Morning light makes the gold shine brightest. The surrounding garden is equally impressive.',
+                    image: 'https://images.unsplash.com/photo-1545566235-74a50f6b1d00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.shokoku-ji.jp/en/kinkakuji/'
+                },
+                {
+                    id: 'arashiyama',
+                    title: 'Arashiyama',
+                    location: 'Kyoto',
+                    description: 'Famous for its bamboo grove and Togetsukyo Bridge. Offers beautiful scenery in every season - cherry blossoms, lush green, autumn colors, and snow.',
+                    access: 'From Kyoto Station: Take JR Sagano Line to Saga-Arashiyama Station (15 min), then 10 min walk.',
+                    tips: 'Rent a bicycle to explore the area. Visit the monkey park for great views over Kyoto.',
+                    image: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.arashiyamago.com/'
+                },
+                {
+                    id: 'gion',
+                    title: 'Gion',
+                    location: 'Kyoto',
+                    description: 'Kyoto\'s most famous geisha district, with well-preserved machiya houses and traditional teahouses. The perfect place to experience traditional Japanese culture.',
+                    access: 'From Kyoto Station: Take bus #100 or #206 to Gion stop (15 min), or Keihan Line to Gion-Shijo Station.',
+                    tips: 'Evening is the best time to visit when lanterns are lit. You might spot a geiko or maiko (geisha) on their way to appointments.',
+                    image: 'https://images.unsplash.com/photo-1571988840298-38dbf4f67773?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.kyoto-gion.jp/en/'
+                },
+                {
+                    id: 'byodoin',
+                    title: 'Byodo-in',
+                    location: 'Uji, Kyoto',
+                    description: 'The Phoenix Hall appears on the 10 yen coin. A stunning example of Heian-period architecture surrounded by a peaceful pond garden.',
+                    access: 'From Kyoto Station: Take JR Nara Line to Uji Station (20 min), then 10 min walk.',
+                    tips: 'The museum houses many national treasures. Matcha from Uji, one of Japan\'s best tea regions, is a must-try nearby.',
+                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.byodoin.or.jp/en/'
+                },
+                {
+                    id: 'osakacastle',
+                    title: 'Osaka Castle',
+                    location: 'Osaka',
+                    description: 'Iconic castle built by Toyotomi Hideyoshi, with a museum inside showcasing Osaka\'s history. The surrounding park is beautiful during cherry blossom season.',
+                    access: 'From Osaka Station: Take JR Loop Line to Osakajokoen Station (10 min), then 10 min walk.',
+                    tips: 'Visit the top floor for panoramic views. The night illumination is spectacular.',
+                    image: 'https://images.unsplash.com/photo-1558862107-9dcbf9344ff1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.osakacastle.net/'
+                },
+                {
+                    id: 'dotonbori',
+                    title: 'Dotonbori',
+                    location: 'Osaka',
+                    description: 'Osaka\'s most famous entertainment district, known for its neon lights, extravagant signage, and delicious street food like takoyaki and okonomiyaki.',
+                    access: 'From Osaka Station: Take Midosuji Line to Namba Station (10 min), then 5 min walk.',
+                    tips: 'Try the crab at Kani Doraku. Visit at night when the signs light up. Don\'t miss the Glico running man sign.',
+                    image: 'https://images.unsplash.com/photo-1528498033370-85cb5d6a51a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'http://www.dotonbori.or.jp/sp/ja/'
+                },
+                {
+                    id: 'shinsekai',
+                    title: 'Shinsekai',
+                    location: 'Osaka',
+                    description: 'Retro-futuristic district developed in 1912 with Tsutenkaku Tower as its symbol. Famous for kushikatsu (deep-fried skewers) and nostalgic atmosphere.',
+                    access: 'From Osaka Station: Take Midosuji Line to Dobutsuen-mae Station (15 min), then 5 min walk.',
+                    tips: 'Try kushikatsu at one of the many restaurants (remember: no double-dipping!). Visit Spa World for an onsen experience.',
+                    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.tsutenkaku.co.jp/'
+                },
+                {
+                    id: 'narapark-todaiji',
+                    title: 'Nara Park & Todai-ji',
+                    location: 'Nara',
+                    description: 'Vast park with over 1,000 freely roaming sacred deer, home to Todai-ji Temple with its Great Buddha housed in the world\'s largest wooden building.',
+                    access: 'From Kintetsu Nara Station: 5 min walk to Nara Park, 15 min more to Todai-ji. From JR Nara Station: Take bus to Todai-ji Daibutsuden stop.',
+                    tips: 'Buy deer crackers to feed the deer (they bow for food!). Don\'t miss the hole in Todai-ji\'s pillar said to bring enlightenment to those who squeeze through.',
+                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.todaiji.or.jp/'
+                },
+                {
+                    id: 'kasugataisha',
+                    title: 'Kasuga Taisha',
+                    location: 'Nara',
+                    description: 'Famous for its thousands of stone and bronze lanterns donated by worshippers. The vermilion shrine buildings stand out beautifully against the forest.',
+                    access: 'From Kintetsu Nara Station: 15 min walk through Nara Park. From JR Nara Station: Take bus to Kasuga Taisha Honden stop.',
+                    tips: 'Visit during Lantern Festivals (early Feb and mid-Aug) when all lanterns are lit. The nearby primeval forest is a UNESCO site.',
+                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.kasugataisha.or.jp/'
+                },
+                {
+                    id: 'houryuji',
+                    title: 'Horyu-ji',
+                    location: 'Nara',
+                    description: 'One of Japan\'s oldest temples, founded in 607 by Prince Shotoku. Contains the world\'s oldest surviving wooden structures and many national treasures.',
+                    access: 'From JR Nara Station: Take JR Yamatoji Line to Horyuji Station (12 min), then 20 min walk or take bus.',
+                    tips: 'Don\'t miss the octagonal Yumedono (Hall of Dreams). The museum houses incredible artifacts from the Asuka period.',
+                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.horyuji.or.jp/'
+                },
+                {
+                    id: 'himejicastle',
+                    title: 'Himeji Castle',
+                    location: 'Hyogo',
+                    description: 'Japan\'s most spectacular castle, known as the "White Heron Castle" for its elegant white appearance. A UNESCO World Heritage site with original 17th century structures.',
+                    access: 'From Osaka Station: Take JR Special Rapid Service to Himeji Station (1 hour), then 15 min walk.',
+                    tips: 'Visit in early April for cherry blossoms. The castle looks stunning against blue skies - check weather forecasts.',
+                    image: 'https://images.unsplash.com/photo-1528164344705-47542687000d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.himejicastle.jp/en/'
+                },
+                {
+                    id: 'kobe',
+                    title: 'Kobe',
+                    location: 'Hyogo',
+                    description: 'Cosmopolitan port city famous for its beef, hot springs, and scenic night views from Mount Rokko. The historic Kitano district features Western-style homes from the Meiji era.',
+                    access: 'From Osaka Station: Take JR Tokaido Line to Kobe Station (20 min). From Shin-Osaka: Take Shinkansen to Shin-Kobe (12 min).',
+                    tips: 'Try Kobe beef at one of the many specialty restaurants. Visit the Arima Onsen hot spring area. The night view from Mount Rokko is considered one of Japan\'s three best night views.',
+                    image: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.feel-kobe.jp/en/'
+                }
+            ],
+            ja: [
+                {
+                    id: 'kiyomizudera',
+                    title: '清水寺',
+                    location: '京都',
+                    description: '崖に張り出した「清水の舞台」で知られる京都を代表する寺院。春の桜と秋の紅葉が特に美しい。',
+                    access: '京都駅から：市バス100系統または206系統で「清水道」下車（10-15分）、徒歩10分。',
+                    tips: '混雑を避けるなら早朝がおすすめ。音羽の滝の三筋の水はそれぞれ違うご利益があると言われています。',
+                    image: 'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.kiyomizudera.or.jp/'
+                },
+                {
+                    id: 'fushimiinari',
+                    title: '伏見稲荷大社',
+                    location: '京都',
+                    description: '千本鳥居で有名な稲荷神社。商売繁盛の神として信仰を集める。',
+                    access: '京都駅から：JR奈良線で稲荷駅へ（5分）、駅すぐ。',
+                    tips: '山頂まで登ると人が少なくなり良い眺め。夜のライトアップも神秘的。',
+                    image: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://inari.jp/'
+                },
+                {
+                    id: 'kinkakuji',
+                    title: '金閣寺',
+                    location: '京都',
+                    description: '金箔で覆われた舎利殿が池に映える美しい禅寺。北山文化を代表する建築。',
+                    access: '京都駅から：市バス101系統または205系統で「金閣寺道」下車（40分）。',
+                    tips: '午前中の光が金箔を最も輝かせます。庭園も必見。',
+                    image: 'https://images.unsplash.com/photo-1545566235-74a50f6b1d00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.shokoku-ji.jp/kinkakuji/'
+                },
+                {
+                    id: 'arashiyama',
+                    title: '嵐山',
+                    location: '京都',
+                    description: '竹林の小径や渡月橋で知られる風光明媚なエリア。四季折々の風景が楽しめる。',
+                    access: '京都駅から：JR嵯峨野線で嵯峨嵐山駅へ（15分）、徒歩10分。',
+                    tips: 'レンタサイクルで周辺を探索するのがおすすめ。猿山からは京都が一望できます。',
+                    image: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.arashiyamago.com/'
+                },
+                {
+                    id: 'gion',
+                    title: '祇園',
+                    location: '京都',
+                    description: '京都随一の花街で、伝統的な町家や茶屋が残るエリア。日本の伝統文化を体感できる場所。',
+                    access: '京都駅から：市バス100系統または206系統で「祇園」下車（15分）、または京阪本線で祇園四条駅へ。',
+                    tips: '夕暮れ時に訪れると風情があります。舞妓さんや芸妓さんを見かけることも。',
+                    image: 'https://images.unsplash.com/photo-1571988840298-38dbf4f67773?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.kyoto-gion.jp/'
+                },
+                {
+                    id: 'byodoin',
+                    title: '平等院',
+                    location: '宇治・京都',
+                    description: '10円硬貨のデザインにもなっている鳳凰堂が有名。平安時代の優雅な建築と庭園。',
+                    access: '京都駅から：JR奈良線で宇治駅へ（20分）、徒歩10分。',
+                    tips: '博物館には国宝が多数展示。宇治抹茶もぜひ。',
+                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.byodoin.or.jp/'
+                },
+                {
+                    id: 'osakacastle',
+                    title: '大阪城',
+                    location: '大阪',
+                    description: '豊臣秀吉が築いた大阪のシンボル。天守閣は博物館になっており、大阪の歴史を学べる。',
+                    access: '大阪駅から：JR環状線で大阪城公園駅へ（10分）、徒歩10分。',
+                    tips: '最上階からは大阪を一望。夜間のライトアップも見事。',
+                    image: 'https://images.unsplash.com/photo-1558862107-9dcbf9344ff1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.osakacastle.net/'
+                },
+                {
+                    id: 'dotonbori',
+                    title: '道頓堀',
+                    location: '大阪',
+                    description: '大阪を代表する繁華街。派手な看板とたこ焼き、お好み焼きなどのB級グルメで有名。',
+                    access: '大阪駅から：御堂筋線で難波駅へ（10分）、徒歩5分。',
+                    tips: 'かに道楽のカニ料理がおすすめ。夜景も必見。グリコの看板は記念撮影スポット。',
+                    image: 'https://images.unsplash.com/photo-1528498033370-85cb5d6a51a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'http://www.dotonbori.or.jp/sp/ja/'
+                },
+                {
+                    id: 'shinsekai',
+                    title: '新世界',
+                    location: '大阪',
+                    description: '通天閣を中心としたレトロなエリア。串カツやジャンジャン横丁で知られる。',
+                    access: '大阪駅から：御堂筋線で動物園前駅へ（15分）、徒歩5分。',
+                    tips: '串カツを食べる時は「二度漬け禁止」のルールを守って。スパワールドで温泉体験も。',
+                    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.tsutenkaku.co.jp/'
+                },
+                {
+                    id: 'narapark-todaiji',
+                    title: '奈良公園 & 東大寺',
+                    location: '奈良',
+                    description: '1,000頭以上の鹿が自由に歩く広大な公園と、世界最大の木造建築である大仏殿を有する東大寺。',
+                    access: '近鉄奈良駅から：徒歩5分で奈良公園、さらに徒歩15分で東大寺。JR奈良駅から：バスで「大仏殿前」下車。',
+                    tips: '鹿せんべいを買って鹿にあげてみよう（鹿もおじぎを返してくれるかも）。東大寺の柱の穴（大仏の鼻の穴と同じ大きさ）をくぐるとご利益があると言われています。',
+                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.todaiji.or.jp/'
+                },
+                {
+                    id: 'kasugataisha',
+                    title: '春日大社',
+                    location: '奈良',
+                    description: '3,000基以上の灯籠が並ぶ神秘的な神社。朱塗りの社殿が美しい。',
+                    access: '近鉄奈良駅から：奈良公園を徒歩15分。JR奈良駅から：バスで「春日大社本殿」下車。',
+                    tips: '灯籠祭り（2月初旬と8月中旬）は全ての灯籠に火が灯され幻想的。原生林は世界遺産。',
+                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.kasugataisha.or.jp/'
+                },
+                {
+                    id: 'houryuji',
+                    title: '法隆寺',
+                    location: '奈良',
+                    description: '聖徳太子が建立した世界最古の木造建築群を有する寺院。飛鳥時代の貴重な文化財が多数。',
+                    access: 'JR奈良駅から：JR大和路線で法隆寺駅へ（12分）、徒歩20分またはバス。',
+                    tips: '八角形の夢殿は必見。宝物館には飛鳥時代の貴重な文化財が展示されています。',
+                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.horyuji.or.jp/'
+                },
+                {
+                    id: 'himejicastle',
+                    title: '姫路城',
+                    location: '兵庫',
+                    description: '白鷺城の愛称で親しまれる日本で最も美しい城。天守閣をはじめ多くの建築物が国宝に指定されている。',
+                    access: '大阪駅から：JR新快速で姫路駅へ（1時間）、徒歩15分。',
+                    tips: '桜の季節（4月上旬）が特に美しい。青空を背景にした白亜の城は絶景。天気予報を確認して訪問するのがおすすめ。',
+                    image: 'https://images.unsplash.com/photo-1528164344705-47542687000d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.city.himeji.lg.jp/castle/'
+                },
+                {
+                    id: 'kobe',
+                    title: '神戸',
+                    location: '兵庫',
+                    description: '国際的な港町で、神戸牛や有馬温泉、六甲山からの夜景で有名。異人館が並ぶ北野は明治時代の面影を残す。',
+                    access: '大阪駅から：JR東海道線で神戸駅へ（20分）。新大阪から：新幹線で新神戸駅へ（12分）。',
+                    tips: '神戸牛の専門店でぜひステーキを。有馬温泉で疲れを癒すのもおすすめ。六甲山からの夜景は日本三大夜景の一つ。',
+                    image: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.feel-kobe.jp/'
+                }
+            ]
+        };
+
+        // App state
+        let currentLanguage = 'en';
+        let darkMode = true;
+        let currentPage = 'home';
+        let currentDestinationId = null;
+
+        // DOM elements
+        const homePage = document.getElementById('home-page');
+        const detailPage = document.getElementById('detail-page');
+        const backButton = document.getElementById('back-button');
+        const themeToggle = document.getElementById('theme-toggle');
+        const languageToggle = document.getElementById('language-toggle');
+        const detailLanguageToggle = document.getElementById('detail-language-toggle');
+        const destinationsGrid = document.getElementById('destinations-grid');
+        const appTitle = document.getElementById('app-title');
+        const appSubtitle = document.getElementById('app-subtitle');
+        const featuredTitle = document.getElementById('featured-title');
+        const detailTitle = document.getElementById('detail-title');
+        const detailLocation = document.getElementById('detail-location');
+        const detailDescription = document.getElementById('detail-description');
+        const detailImage = document.getElementById('detail-image');
+        const detailAccess = document.getElementById('detail-access');
+        const detailTips = document.getElementById('detail-tips');
+        const officialLink = document.getElementById('official-link');
+        const accessTitle = document.getElementById('access-title');
+        const tipsTitle = document.getElementById('tips-title');
+        const contactLink = document.getElementById('contact-link');
+        const railwayMapEn = document.getElementById('railway-map-en');
+        const railwayMapJa = document.getElementById('railway-map-ja');
+        const mapModal = document.getElementById('map-modal');
+        const closeModal = document.getElementById('close-modal');
+        const modalMapImage = document.getElementById('modal-map-image');
+
+        // Initialize the app
+        function init() {
+            renderDestinations();
+            setupEventListeners();
+            updateUI();
+            
+            // Hide address bar in mobile browsers
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    window.scrollTo(0, 1);
+                }, 0);
+            });
+            
+            // Prevent scrolling when modal is open
+            document.addEventListener('touchmove', function(e) {
+                if (mapModal.style.display === 'flex') {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            themeToggle.addEventListener('click', toggleTheme);
+            languageToggle.addEventListener('click', toggleLanguage);
+            detailLanguageToggle.addEventListener('click', toggleDetailLanguage);
+            backButton.addEventListener('click', goBack);
+            
+            // Railway map click handlers
+            document.querySelectorAll('.railway-map img').forEach(img => {
+                img.addEventListener('click', openMapModal);
+            });
+            
+            // Modal close handler
+            closeModal.addEventListener('click', closeMapModal);
+            mapModal.addEventListener('click', (e) => {
+                if (e.target === mapModal) closeMapModal();
+            });
+        }
+
+        // Render destination cards
+        function renderDestinations() {
+            destinationsGrid.innerHTML = '';
+            destinations[currentLanguage].forEach(destination => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${destination.image}" alt="${destination.title}">
+                    <div class="card-content">
+                        <h3>${destination.title}</h3>
+                        <div class="location">${destination.location}</div>
+                    </div>
+                `;
+                card.addEventListener('click', () => showDetail(destination.id));
+                destinationsGrid.appendChild(card);
+            });
+        }
+
+        // Show detail page for a destination
+        function showDetail(id) {
+            currentDestinationId = id;
+            updateDetailContent();
+            currentPage = 'detail';
+            updateUI();
+            window.scrollTo(0, 0);
+        }
+
+        // Update detail content based on current language
+        function updateDetailContent() {
+            const destination = destinations[currentLanguage].find(d => d.id === currentDestinationId);
+            if (!destination) return;
+            
+            detailTitle.textContent = destination.title;
+            detailLocation.textContent = destination.location;
+            detailDescription.textContent = destination.description;
+            detailImage.src = destination.image;
+            detailImage.alt = destination.title;
+            detailAccess.textContent = destination.access;
+            detailTips.textContent = destination.tips;
+            officialLink.href = destination.officialUrl;
+            
+            // Update link text based on language
+            officialLink.textContent = currentLanguage === 'en' ? 'Visit Official Site' : '公式サイトへ';
+        }
+
+        // Go back to home page
+        function goBack() {
+            currentPage = 'home';
+            updateUI();
+            window.scrollTo(0, 0);
+        }
+
+        // Toggle between dark and light mode
+        function toggleTheme() {
+            darkMode = !darkMode;
+            updateUI();
+        }
+
+        // Toggle between English and Japanese on home page
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'ja' : 'en';
+            renderDestinations();
+            updateUI();
+        }
+
+        // Toggle between English and Japanese on detail page
+        function toggleDetailLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'ja' : 'en';
+            updateDetailContent();
+            updateUI();
+        }
+
+        // Open map modal with clicked image
+        function openMapModal(e) {
+            modalMapImage.src = e.target.src;
+            modalMapImage.alt = e.target.alt;
+            mapModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close map modal
+        function closeMapModal() {
+            mapModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Update UI based on current state
+        function updateUI() {
+            // Set theme
+            if (darkMode) {
+                document.body.classList.remove('light-mode');
+                themeToggle.textContent = currentLanguage === 'en' ? '🌙 Dark Mode' : '🌙 ダークモード';
+                detailLanguageToggle.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            } else {
+                document.body.classList.add('light-mode');
+                themeToggle.textContent = currentLanguage === 'en' ? '☀️ Light Mode' : '☀️ ライトモード';
+                detailLanguageToggle.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
+            }
+            
+            // Set language toggle text
+            languageToggle.textContent = currentLanguage === 'en' ? '🇯🇵 日本語' : '🇬🇧 English';
+            detailLanguageToggle.textContent = currentLanguage === 'en' ? '🇯🇵 日本語' : '🇬🇧 English';
+            
+            // Update page visibility
+            homePage.style.display = currentPage === 'home' ? 'block' : 'none';
+            detailPage.style.display = currentPage === 'detail' ? 'block' : 'none';
+            
+            // Update railway map visibility
+            if (currentPage === 'home') {
+                railwayMapEn.style.display = currentLanguage === 'en' ? 'block' : 'none';
+                railwayMapJa.style.display = currentLanguage === 'ja' ? 'block' : 'none';
+            } else {
+                railwayMapEn.style.display = 'none';
+                railwayMapJa.style.display = 'none';
+            }
+            
+            // Update text content based on language
+            if (currentLanguage === 'en') {
+                appTitle.textContent = 'Kansai Travel Guide';
+                appSubtitle.textContent = 'Kyoto Osaka Nara Himeji Kobe';
+                featuredTitle.textContent = 'Featured Destinations';
+                accessTitle.textContent = 'Access';
+                tipsTitle.textContent = 'Tips';
+                backButton.textContent = '← Back';
+                contactLink.innerHTML = 'Contact me<br>mementomorikatsu@gmail.com';
+            } else {
+                appTitle.textContent = '関西旅行ガイド';
+                appSubtitle.textContent = '京都 大阪 奈良 姫路 神戸';
+                featuredTitle.textContent = 'おすすめ観光地';
+                accessTitle.textContent = 'アクセス';
+                tipsTitle.textContent = 'おすすめ情報';
+                backButton.textContent = '← 戻る';
+                contactLink.innerHTML = '連絡先<br>mementomorikatsu@gmail.com';
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
