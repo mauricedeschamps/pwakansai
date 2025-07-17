@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- manifest.json のリンク -->
-    <link rel="manifest" href="./manifest.json">
-
-    <!-- iOS用メタタグ -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛩️</text></svg>">
-
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#dc3545">
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#dc3545">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Kansai Guide">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
     <title>Kansai Travel Guide</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛩️</text></svg>">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
+    
     <style>
         :root {
             --bg-color: #121212;
@@ -311,6 +314,23 @@
                 gap: 0.5rem;
             }
         }
+
+   :root {
+            --bg-color: #121212;
+            --text-color: #f8f9fa;
+            --card-bg: #1e1e1e;
+            --accent-color: #dc3545;
+            --secondary-color: #6c757d;
+        }
+        
+        .light-mode {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --accent-color: #dc3545;
+            --secondary-color: #6c757d;
+        }
+        
     </style>
 </head>
 <body>
@@ -892,6 +912,107 @@
                     });
             });
         }
+
+    // 既存のJavaScriptコードは変更なし
+        const destinations = { /* ... */ };
+        // ...
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // ===== 以下にPWA関連のコードを追加 =====
+        
+        // インストールボタンの作成と表示
+        let deferredPrompt;
+        const installButton = document.createElement('button');
+        installButton.id = 'install-button';
+        installButton.textContent = '📱 Install App';
+        installButton.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+        `;
+        document.body.appendChild(installButton);
+        
+        // インストール可能時のイベント
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'block';
+            
+            installButton.addEventListener('click', () => {
+                installButton.style.display = 'none';
+                deferredPrompt.prompt();
+                
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted install');
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        });
+        
+        // Service Workerの登録
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+        
+        // インストール済みかどうかを確認
+        window.addEventListener('appinstalled', () => {
+            console.log('App installed successfully');
+            installButton.style.display = 'none';
+            deferredPrompt = null;
+        });
+        
+        // オフライン状態の検出
+        window.addEventListener('online', () => {
+            document.documentElement.style.setProperty('--accent-color', '#dc3545');
+        });
+        
+        window.addEventListener('offline', () => {
+            document.documentElement.style.setProperty('--accent-color', '#6c757d');
+            showOfflineAlert();
+        });
+        
+        function showOfflineAlert() {
+            if (currentPage === 'home') {
+                const alert = document.createElement('div');
+                alert.textContent = '⚠️ You are offline. Some features may be limited.';
+                alert.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 10px;
+                    background-color: #ffc107;
+                    color: #212529;
+                    text-align: center;
+                    z-index: 2000;
+                `;
+                document.body.appendChild(alert);
+                
+                setTimeout(() => {
+                    document.body.removeChild(alert);
+                }, 5000);
+            }
+        }
+        
     </script>
 </body>
 </html>
